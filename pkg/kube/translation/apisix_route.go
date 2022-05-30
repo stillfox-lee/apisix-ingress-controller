@@ -812,6 +812,20 @@ func (t *translator) translateStreamRouteV2(ctx *TranslateContext, ar *configv2.
 			)
 			return err
 		}
+
+		// add stream route plugins
+		pluginMap := make(apisixv1.Plugins)
+		for _, plugin := range part.Plugins {
+			if !plugin.Enable {
+				continue
+			}
+			if plugin.Config != nil {
+				pluginMap[plugin.Name] = plugin.Config
+			} else {
+				pluginMap[plugin.Name] = make(map[string]interface{})
+			}
+		}
+
 		sr := apisixv1.NewDefaultStreamRoute()
 		name := apisixv1.ComposeStreamRouteName(ar.Namespace, ar.Name, part.Name)
 		sr.ID = id.GenID(name)
@@ -821,6 +835,7 @@ func (t *translator) translateStreamRouteV2(ctx *TranslateContext, ar *configv2.
 			return err
 		}
 		sr.UpstreamId = ups.ID
+		sr.Plugins = pluginMap
 		ctx.AddStreamRoute(sr)
 		if !ctx.CheckUpstreamExist(ups.Name) {
 			ctx.AddUpstream(ups)

@@ -36,6 +36,7 @@ import (
 
 	"github.com/apache/apisix-ingress-controller/pkg/config"
 	"github.com/apache/apisix-ingress-controller/pkg/kube"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gavv/httpexpect/v2"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/testing"
@@ -279,6 +280,13 @@ func (s *Scaffold) NewAPISIXClientWithTLSOverTCP(host string) *httpexpect.Expect
 			httpexpect.NewAssertReporter(ginkgo.GinkgoT()),
 		),
 	})
+}
+
+func (s *Scaffold) NewMQTTClient() mqtt.Client {
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tcp://%s", s.apisixTCPTunnel.Endpoint()))
+	client := mqtt.NewClient(opts)
+	return client
 }
 
 func (s *Scaffold) DNSResolver() *net.Resolver {

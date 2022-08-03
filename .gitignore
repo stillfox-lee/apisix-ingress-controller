@@ -39,3 +39,7 @@ apisix-ingress-controller
 .actions/openwhisk-utilities
 
 .generated
+
+# Golang related files
+go.work
+go.work.sum
